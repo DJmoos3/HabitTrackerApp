@@ -10,7 +10,11 @@ import SwiftUI
 struct CalendarView: View {
     var body: some View {
         VStack(spacing: 30) {
-            
+            Text("Calendar loaded OK")
         }
     }
+}
+
+#Preview {
+    CalendarView()
 }
