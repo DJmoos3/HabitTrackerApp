@@ -8,6 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var user = User(
+        name: "Isaac",
+        dailyHabits: [],
+        dailyStreak: 3
+    )
+
+    
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -30,7 +39,7 @@ struct ContentView: View {
                     .buttonStyle(PlainButtonStyle())
                 }
                 Text("Today is Friday the 1st of May")
-                Text("You're on a streak of 3 days!")
+                Text("You're on a streak of \(user.dailyStreak) days!")
                 Text("These are your Tasks for today!")
                 List {
                     // Where to put the list of habits of today

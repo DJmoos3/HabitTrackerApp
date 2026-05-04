@@ -43,12 +43,12 @@ struct HabitView: View {
         .padding(.top)
     }
 
+    //adds new habit and removes text from the text field
     func addHabit() {
-        //adds new habit and removes text from the text field
         let trimmed = newHabitName.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
-        let newHabit = Habit(id: UUID(), name: trimmed, isCompleted: false)
+        let newHabit = Habit(name: trimmed, isCompleted: false)
         habits.append(newHabit)
         newHabitName = ""
     }

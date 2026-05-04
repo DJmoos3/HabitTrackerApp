@@ -8,7 +8,7 @@
 import Foundation
 
 struct Habit: Identifiable {
-    var id: UUID
+    var id = UUID()
     var name: String
     var isCompleted: Bool
 }
