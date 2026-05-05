@@ -59,7 +59,7 @@ struct CalendarView: View {
                 ForEach(0..<(firstWeekdayOfMonth + daysInMonth), id: \.self) {
                     index in
                     if index < firstWeekdayOfMonth {
-                        // makes the colour of days it isn't into clear
+                        // makes the colour of non current days into clear
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.clear)
                             .frame(height: 45)

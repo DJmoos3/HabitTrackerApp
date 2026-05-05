@@ -5,21 +5,30 @@
 //  Created by Isaac Strandh on 2026-05-01.
 //
 
+import SwiftData
 import Foundation
-import SwiftUI
 
-struct User: Identifiable {
-    var id = UUID()
+@Model
+class User {
+    var id: UUID
     var name: String
     var dailyHabits: [Habit]
     var dailyStreak: Int
     
+    init(name: String, dailyHabits: [Habit] = [], dailyStreak: Int = 0) {
+        self.id = UUID()
+        self.name = name
+        self.dailyHabits = dailyHabits
+        self.dailyStreak = dailyStreak
+    }
     
-    mutating func addHabit(_ habit: Habit) {
+    func addHabit(_ habit: Habit) {
         dailyHabits.append(habit)
     }
 
-    mutating func removeHabit(at offsets: IndexSet) {
-        dailyHabits.remove(atOffsets: offsets)
+    func removeHabit(at offsets: IndexSet) {
+        offsets.sorted().reversed().forEach { index in
+            dailyHabits.remove(at: index)
+        }
     }
 }

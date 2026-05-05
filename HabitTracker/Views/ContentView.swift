@@ -12,8 +12,7 @@ struct ContentView: View {
     @State private var user = User(
         name: "Isaac",
         dailyHabits: [],
-        dailyStreak: 3
-    )
+        dailyStreak: 3)
 
     
     
@@ -38,7 +37,8 @@ struct ContentView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
-                Text("Today is Friday the 1st of May")
+                
+                Text("Welcome back \(user.name) Today is Friday the 1st of May")
                 Text("You're on a streak of \(user.dailyStreak) days!")
                 Text("These are your Tasks for today!")
                 List {
