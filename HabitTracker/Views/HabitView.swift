@@ -43,7 +43,7 @@ struct HabitView: View {
         .padding(.top)
     }
 
-    //adds new habit and removes text from the text field
+    //adds new habit and then removes text from the text field
     func addHabit() {
         let trimmed = newHabitName.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
