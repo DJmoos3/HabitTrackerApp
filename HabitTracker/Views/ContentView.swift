@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     
-    @State private var user = User(
-        name: "Isaac",
-        dailyHabits: [],
-        dailyStreak: 3)
+    @Query private var users: [User]
+    @Environment(\.modelContext) private var context
+
+    private var user: User? { users.first }
 
     
     
@@ -28,24 +29,36 @@ struct ContentView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding()
-                    NavigationLink(destination: HabitView()) {
-                        Image(systemName: "list.bullet.clipboard")
-                            .resizable()
-                            .frame(width: 70, height: 75)
-                            .clipped()
-                            .offset(y: -2)
+                    if let user {
+                        NavigationLink(destination: HabitView(user: user)) {
+                            Image(systemName: "list.bullet.clipboard")
+                                .resizable()
+                                .frame(width: 70, height: 75)
+                                .clipped()
+                                .offset(y: -2)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
                 
-                Text("Welcome back \(user.name) Today is Friday the 1st of May")
-                Text("You're on a streak of \(user.dailyStreak) days!")
-                Text("These are your Tasks for today!")
-                List {
-                    // Where to put the list of habits of today
+                if let user {
+                    Text("Welcome back \(user.name), today is Friday the 1st of May")
+                    Text("You're on a streak of \(user.dailyStreak) days!")
+                    Text("These are your tasks for today!")
+                    List(user.dailyHabits) { habit in
+                        Text(habit.name)
+                    }
+                } else {
+                    ProgressView("Loading...")
                 }
             }
             .padding()
+            .onAppear {
+                if users.isEmpty {
+                    let newUser = User(name: "Isaac", dailyStreak: 0)
+                    context.insert(newUser)
+                }
+            }
         }
     }
 }

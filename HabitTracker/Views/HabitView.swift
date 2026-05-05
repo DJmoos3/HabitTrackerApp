@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HabitView: View {
-    @State private var habits: [Habit] = []
-    @State private var newHabitName: String = ""
+    @Environment(\.modelContext) private var context
+    var user: User
+    @State private var newHabitName = ""
 
     var body: some View {
         VStack(spacing: 20) {
@@ -36,24 +38,33 @@ struct HabitView: View {
             }
             .padding(.horizontal)
 
-            List(habits) { habit in
-                Text(habit.name)
+            List {
+                ForEach(user.dailyHabits) { habit in
+                    Text(habit.name)
+                }
+                .onDelete { offsets in
+                    user.removeHabit(at: offsets)
+                }
             }
         }
-        .padding(.top)
     }
 
     //adds new habit and then removes text from the text field
     func addHabit() {
         let trimmed = newHabitName.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
-
-        let newHabit = Habit(name: trimmed, isCompleted: false)
-        habits.append(newHabit)
+        let habit = Habit(name: trimmed)
+        context.insert(habit)
+        user.addHabit(habit)
         newHabitName = ""
     }
 }
 
 #Preview {
-    HabitView()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: User.self, configurations: config)
+    let user = User(name: "Isaac", dailyStreak: 0)
+    container.mainContext.insert(user)
+    return HabitView(user: user)
+        .modelContainer(container)
 }
