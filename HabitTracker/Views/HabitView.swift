@@ -40,14 +40,27 @@ struct HabitView: View {
 
             List {
                 ForEach(user.dailyHabits) { habit in
-                    Text(habit.name)
+                    HStack {
+                        Text(habit.name)
+                        Spacer()
+                        Button(action: {
+                            habit.isCompleted.toggle()
+                            try? context.save()
+                        }) {
+                            Image(systemName: habit.isCompleted ? "checkmark.circle.fill" : "circle")
+                                .font(.title2)
+                                .foregroundColor(habit.isCompleted ? .green : .gray)
+                        }
+                        .buttonStyle(PlainButtonStyle()) // prevents the whole row from highlighting
+                    }
                 }
                 .onDelete { offsets in
                     offsets.sorted().reversed().forEach { index in
                         let habit = user.dailyHabits[index]
                         context.delete(habit)  // This removes the habit from the SwiftData memory
-                        user.dailyHabits.remove(at: index)  // And this removes from the list in the UI and from the user
+                        //user.dailyHabits.remove(at: index)  // And this removes from the list in the UI and from the user
                     }
+                    try? context.save()
                 }
             }
             .toolbar {
@@ -63,6 +76,7 @@ struct HabitView: View {
         let habit = Habit(name: trimmed)
         context.insert(habit)
         user.addHabit(habit)
+        try? context.save()
         newHabitName = ""
     }
 }
