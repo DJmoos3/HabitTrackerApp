@@ -5,8 +5,8 @@
 //  Created by Isaac Strandh on 2026-05-01.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct HabitView: View {
     @Environment(\.modelContext) private var context
@@ -43,8 +43,15 @@ struct HabitView: View {
                     Text(habit.name)
                 }
                 .onDelete { offsets in
-                    user.removeHabit(at: offsets)
+                    offsets.sorted().reversed().forEach { index in
+                        let habit = user.dailyHabits[index]
+                        context.delete(habit)  // This removes the habit from the SwiftData memory
+                        user.dailyHabits.remove(at: index)  // And this removes from the list in the UI and from the user
+                    }
                 }
+            }
+            .toolbar {
+                EditButton()
             }
         }
     }
