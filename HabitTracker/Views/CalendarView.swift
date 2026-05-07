@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CalendarView: View {
+    var user: User
     let currentDate = Date()
     let calendar = Calendar.current
 
@@ -43,7 +45,7 @@ struct CalendarView: View {
     private let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     var body: some View {
-        VStack(spacing: 30) {
+        VStack(spacing: 30) { //LaztVGrid is for a big vertically scrollable collection of views arranged in a two dimensional layout.
             LazyVGrid(columns: columns, spacing: 3) {
                 ForEach(weekdays, id: \.self) { day in
                     Text(day)
@@ -54,47 +56,61 @@ struct CalendarView: View {
             }
 
             // Creates a grid of days to be visible onscreen
-            LazyVGrid(columns: columns, spacing: 8) {
+            LazyVGrid(columns: columns, spacing: 4) {
+                       ForEach(0..<(firstWeekdayOfMonth + daysInMonth), id: \.self) { index in
+                           if index < firstWeekdayOfMonth {
+                               RoundedRectangle(cornerRadius: 8)
+                                   .fill(Color.clear)
+                                   .frame(height: 45)
+                           } else {
+                               let day = index - firstWeekdayOfMonth + 1
+                               let date = dateFor(day: day)
+                               let isToday = isCurrentMonth && day == today
+                               let isPast = date < calendar.startOfDay(for: Date())
+                               let completed = user.wasCompleted(on: date)
 
-                ForEach(0..<(firstWeekdayOfMonth + daysInMonth), id: \.self) {
-                    index in
-                    if index < firstWeekdayOfMonth {
-                        // makes the colour of non current days into clear
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.clear)
-                            .frame(height: 45)
-                    } else {
-                        // And this makes the current day into blue with a white number
-                        let day = index - firstWeekdayOfMonth + 1
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(
-                                    isCurrentMonth && day == today
-                                        ? Color.blue
-                                        : Color.gray.opacity(0.2)
-                                )
-                                .frame(height: 45)
+                               ZStack {
+                                   RoundedRectangle(cornerRadius: 8)
+                                       .fill(dayColor(isToday: isToday, isPast: isPast, completed: completed))
+                                       .frame(height: 45)
 
-                            Text("\(day)")
-                                .font(.callout)
-                                .bold(isCurrentMonth && day == today)
-                                .foregroundColor(
-                                    isCurrentMonth && day == today
-                                        ? .white
-                                        : .primary
-                                )
-                        }
-                    }
-                }
-            }
-            .padding(2)
+                                   Text("\(day)")
+                                       .font(.callout)
+                                       .bold(isToday)
+                                       .foregroundColor(isToday || (isPast && completed) ? .white : .primary)
+                               }
+                           }
+                       }
+                   }
+                   .padding(.horizontal)
 
-            Spacer()
-        }
-        .padding(.top, 50)
-    }
+                   Spacer()
+               }
+               .padding(.top)
+               .navigationTitle("Calendar")
+           }
+           func dateFor(day: Int) -> Date {
+               var components = DateComponents()
+               components.year = calendar.component(.year, from: currentDate)
+               components.month = calendar.component(.month, from: currentDate)
+               components.day = day
+               return calendar.date(from: components) ?? Date()
+           }
+    //makes the days either red or green if habits have been made and blue for today
+           func dayColor(isToday: Bool, isPast: Bool, completed: Bool) -> Color {
+               if isToday { return .blue }
+               if isPast && completed { return .green }
+               if isPast && !completed { return .red }
+               return Color.gray.opacity(0.2)
+           }
+
 }
 
 #Preview {
-    CalendarView()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: User.self, configurations: config)
+    let user = User(name: "Isaac", dailyStreak: 3)
+    container.mainContext.insert(user)
+    return CalendarView(user: user)
+        .modelContainer(container)
 }
